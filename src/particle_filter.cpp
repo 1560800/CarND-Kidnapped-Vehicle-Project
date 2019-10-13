@@ -20,6 +20,8 @@
 
 using std::string;
 using std::vector;
+using namespace std;
+static  default_random_engine gen;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
   /**
@@ -31,26 +33,20 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   (and others in this file).
    */
   num_particles = 100;  // TODO: Set the number of particles
-  std::default_random_engine gen;
 
   // This line creates a normal (Gaussian) distribution for x,y and theta
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
-  double x_noise = 0.0, y_noise = 0.0, theta_noise = 0.0;
 
   for (int i = 0; i < num_particles; ++i) {
 
 	  Particle p;
-	  x_noise = dist_x(gen);
-	  y_noise = dist_y(gen);
-	  theta_noise = dist_theta(gen);
-
-	  p.id = i;
-	  p.x = x + x_noise;
-	  p.y = y + y_noise;
-	  p.theta = theta + theta_noise;
-	  p.weight = 1.0;
+	  p.id = i; // particles id
+	  p.x = x + dist_x(gen); // x + x_noise;
+	  p.y = y + dist_y(gen); // y + y_noise;
+	  p.theta = theta + dist_theta(gen); // theta + theta_noise;
+	  p.weight = 1.0; //all weights to 1
 	  particles.push_back(p);
   }
   is_initialized = true;
@@ -65,6 +61,25 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    *  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
+
+	normal_distribution<double> dist_x(0, std_pos[0]);
+	normal_distribution<double> dist_y(0, std_pos[1]);
+	normal_distribution<double> dist_theta(0, std_pos[2]);
+
+	for (int i = 0; i < num_particles; ++i) {
+		if (fabs(yaw_rate) > 0.001) {
+			particles[i].x += (velocity / yaw_rate) * (sin(particles[i].theta + (yaw_rate * delta_t)) - sin(particles[i].theta));
+			particles[i].y += (velocity / yaw_rate) * (-cos(particles[i].theta + (yaw_rate * delta_t)) + cos(particles[i].theta));
+			particles[i].theta += yaw_rate * delta_t;
+		}else {
+			particles[i].x += velocity * delta_t * cos(yaw_rate);
+			particles[i].y += velocity * delta_t * sin(yaw_rate);
+		}
+		particles[i].x += dist_x(gen); // x + x_noise;
+		particles[i].y += dist_y(gen); // y + y_noise;
+		particles[i].theta += dist_theta(gen); // theta + theta_noise;
+	}
+
 
 }
 
