@@ -108,7 +108,6 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
 		observations[i].id = map_id;
 	}
 
-
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
@@ -127,7 +126,21 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   and the following is a good resource for the actual equation to implement
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
    */
+	for (int i = 0; i < num_particles; ++i) {
+		//Predicted landmarks with sensor range
+		std::vector <LandmarkObs>  predicted;
+		for (int j = 0; j < map_landmarks.landmark_list.size(), ++j) {
+			int landmark_id = map_landmarks.landmark_list[j].id_i;
+			float landmark_x = map_landmarks.landmark_list[j].x_f;
+			float landmark_y = map_landmarks.landmark_list[j].y_f;
+			if (dist(particles[i].x , particles[i].y , landmark_x , landmark_y) < sensor_range) {
+				predicted.push_back(LandmarkObs{ landmark_x, landmark_y, landmark_id });
+			}
+		}
 
+		
+
+	}
 }
 
 void ParticleFilter::resample() {
