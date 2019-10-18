@@ -79,8 +79,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 		particles[i].y += dist_y(gen); // y + y_noise;
 		particles[i].theta += dist_theta(gen); // theta + theta_noise;
 	}
-
-
 }
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, 
@@ -129,16 +127,23 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	for (int i = 0; i < num_particles; ++i) {
 		//Predicted landmarks with sensor range
 		std::vector <LandmarkObs>  predicted;
-		for (int j = 0; j < map_landmarks.landmark_list.size(), ++j) {
+		for (int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
 			int landmark_id = map_landmarks.landmark_list[j].id_i;
 			float landmark_x = map_landmarks.landmark_list[j].x_f;
 			float landmark_y = map_landmarks.landmark_list[j].y_f;
 			if (dist(particles[i].x , particles[i].y , landmark_x , landmark_y) < sensor_range) {
-				predicted.push_back(LandmarkObs{ landmark_x, landmark_y, landmark_id });
+				predicted.push_back(LandmarkObs{ landmark_id,landmark_x, landmark_y});
 			}
 		}
+		// Transforming observations into global coordinate system.
+		std::vector <LandmarkObs> transformed_Obs;
+		for (int k = 0; k < observations.size(); ++k) {
+			double trans_x = particles[i].x + (cos(particles[i].theta) * observations[k].x) - (sin(particles[i].theta) * observations[k].y);
+			double trans_y = particles[i].y + (sin(particles[i].theta) * observations[k].x) + (cos(particles[i].theta) * observations[k].y);
+			transformed_Obs.push_back(LandmarkObs{ observations[k].id, trans_x, trans_y });
+	}
 
-		
+
 
 	}
 }
