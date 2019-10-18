@@ -141,10 +141,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double trans_x = particles[i].x + (cos(particles[i].theta) * observations[k].x) - (sin(particles[i].theta) * observations[k].y);
 			double trans_y = particles[i].y + (sin(particles[i].theta) * observations[k].x) + (cos(particles[i].theta) * observations[k].y);
 			transformed_Obs.push_back(LandmarkObs{ observations[k].id, trans_x, trans_y });
-	}
+		}
+		// Match subset of landmarks to their observations.
+		dataAssociation(predicted, transformed_Obs);
 
+		// Initialize particle weight.
+		particles[i].weight = 0;
 
-
+		for (int l = 0; l < transformed_Obs.size(); ++l) {
+			int index = -1;
+			while (transformed_Obs[l].id != predicted[index].id) {
+				++index;
+			}
+			// Caluclate the weight of each particle by using the multivate Gaussian probability density function.
+			particles[i].weight *= multiv_prob(std_landmark[0], std_landmark[1], transformed_Obs[l].x, transformed_Obs[l].y,
+				predicted[index].x, predicted[index].y);
+		}
 	}
 }
 
