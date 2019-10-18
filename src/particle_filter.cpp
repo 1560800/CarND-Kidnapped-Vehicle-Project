@@ -168,6 +168,18 @@ void ParticleFilter::resample() {
    *   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
    */
 
+	// Get an array of weights for a discrete distribution
+	vector<double> weights;
+	for (int i = 0; i < num_particles; ++i) {
+		weights.push_back(particles[i].weight);
+	}
+	std::discrete_distribution<double> dst2(weights.begin(), weights.end());
+	// Resampling
+	vector<Particle> new_particles;
+	for (int i = 0; i < num_particles; ++i) {
+		new_particles.push_back(particles[dst2(gen)]);
+	}
+	particles = new_particles;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
