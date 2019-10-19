@@ -1,3 +1,6 @@
+[![Dataset 1](/data/top.png)](https://youtu.be/YkRb54Ym0VA)
+[YouTube Link](https://youtu.be/YkRb54Ym0VA)
+
 # Overview
 This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
 
